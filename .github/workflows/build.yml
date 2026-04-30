@@ -8,9 +8,6 @@ on:
 
 jobs:
 
-  # =========================
-  # WINDOWS BUILD (EXE)
-  # =========================
   build-windows:
     runs-on: windows-latest
 
@@ -21,29 +18,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      # ✅ Install Python deps only
       - name: Install Python deps
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
 
-      # ✅ Build EXE with bundled DLLs
       - name: Build EXE
         run: |
           pyinstaller --onefile `
           --name nythera `
           --add-binary "dlls;dlls" `
+          --add-data "fonts;fonts" `
           nythera/cli.py
-
+      
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: nythera-windows
           path: dist/nythera.exe
 
-  # =========================
-  # SOURCE PACKAGE
-  # =========================
   build-source:
     runs-on: ubuntu-latest
 

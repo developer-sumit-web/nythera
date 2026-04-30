@@ -7,16 +7,22 @@ import configparser
 # ================= DLL FIX (EARLY) =================
 if os.name == "nt":
     if getattr(sys, "frozen", False):
-        # Running as EXE → use bundled DLLs
         base = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
         dll_path = os.path.join(base, "dlls")
+        font_path = os.path.join(base, "fonts")
     else:
-        # Development → use system DLLs
         dll_path = r"C:\msys64\ucrt64\bin"
+        font_path = r"C:\msys64\ucrt64\etc\fonts"
 
     if os.path.exists(dll_path):
         os.add_dll_directory(dll_path)
         os.environ["PATH"] = dll_path + ";" + os.environ["PATH"]
+    
+    if os.path.exists(font_path):
+        os.environ["FONTCONFIG_PATH"] = font_path
+
+# ====================================================================
+
 from contextlib import nullcontext
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
