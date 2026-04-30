@@ -116,16 +116,38 @@ def get_config_path():
 
 def create_default_config(path):
     default_config = """[general]
+# Icon style: auto | nerd | basic
 icons = auto
+
+# Show progress bar: true | false
 progress = true
 
+
 [output]
+# Page rendering mode:
+# strict    → exact HTML (no changes)
+# a4        → force A4 layout
+# flexible  → remove constraints
+# auto      → detect from HTML
 page_mode = strict
+
+# Where to save generated PDFs
+# Empty → same folder as input
+# Set a path → always use it (overridden by -o or manual input)
 default_dir =
+
+# Overwrite existing PDFs: true | false
 overwrite = false
+
+# Open PDF after creation:
+# ask     → prompt user
+# always  → open automatically
+# never   → do not open
 open_after = ask
 
+
 [theme]
+# Theme mode (future use): dark | light | custom
 mode = dark
 
 primary_color = cyan
@@ -136,7 +158,9 @@ dim_color = grey50
 header_style = bold
 separator_style = dim
 
+
 [advanced]
+# Enable debug logs: true | false
 debug = false
 """
 
@@ -171,6 +195,7 @@ def load_config():
 
         "overwrite": config.getboolean("output", "overwrite", fallback=False),
         "open_after": config.get("output", "open_after", fallback="ask"),
+        "default_dir": config.get("output", "default_dir", fallback=""),
     }
 
 
@@ -298,6 +323,17 @@ def main():
 
         if args.output:
             output_dir = clean_path(args.output)
+
+        elif config.get("default_dir"):
+            candidate = clean_path(config["default_dir"])
+
+            if os.path.isdir(candidate):
+                output_dir = candidate
+                console.print(f"[{config['dim_color']}]Using default output directory[/{config['dim_color']}]")
+            else:
+                console.print(f"[{config['dim_color']}]Invalid default_dir, using input folder instead[/{config['dim_color']}]")
+                output_dir = os.path.dirname(os.path.abspath(html_files[0])) or os.getcwd()
+
         else:
             output_dir = os.path.dirname(os.path.abspath(html_files[0])) or os.getcwd()
             console.print(f"[{config['dim_color']}]Using same folder as input[/{config['dim_color']}]")
