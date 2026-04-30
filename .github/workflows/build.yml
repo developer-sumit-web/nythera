@@ -29,9 +29,9 @@ jobs:
       # 👇 IMPORTANT: bundle DLL folder
       - name: Build EXE
         run: |
-          pyinstaller --onefile ^
-          --name nythera ^
-          --add-binary "dlls;dlls" ^
+          pyinstaller --onefile `
+          --name nythera `
+          --add-binary "dlls;dlls" `
           nythera/cli.py
 
       - name: Upload EXE
