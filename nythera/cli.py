@@ -17,7 +17,7 @@ if os.name == "nt":
     if os.path.exists(dll_path):
         os.add_dll_directory(dll_path)
         os.environ["PATH"] = dll_path + ";" + os.environ["PATH"]
-    
+
     if os.path.exists(font_path):
         os.environ["FONTCONFIG_PATH"] = font_path
 
@@ -299,7 +299,7 @@ def main():
         if args.output:
             output_dir = clean_path(args.output)
         else:
-            output_dir = os.path.dirname(html_files[0]) or os.getcwd()
+            output_dir = os.path.dirname(os.path.abspath(html_files[0])) or os.getcwd()
             console.print(f"[{config['dim_color']}]Using same folder as input[/{config['dim_color']}]")
 
     else:
@@ -324,7 +324,7 @@ def main():
             return
 
         if not output_dir.strip():
-            output_dir = os.path.dirname(html_files[0]) or os.getcwd()
+            output_dir = os.path.dirname(os.path.abspath(html_files[0])) or os.getcwd()
             console.print(f"[{config['dim_color']}]Using same folder as input[/{config['dim_color']}]")
 
     # Validation
@@ -468,7 +468,7 @@ def main():
     elif setting == "never":
         should_open = False
 
-    elif setting == "ask" and not is_cli:
+    elif setting == "ask":
         try:
             choice = input(f"\n{icons['arrow']} Open file? (y/n) → ").strip().lower()
             should_open = choice in ("y", "yes")
