@@ -15,6 +15,7 @@ if os.name == "nt":
         dll_path = r"C:\msys64\ucrt64\bin"
 
     if os.path.exists(dll_path):
+        os.add_dll_directory(dll_path)
         os.environ["PATH"] = dll_path + ";" + os.environ["PATH"]
 from contextlib import nullcontext
 from rich.console import Console

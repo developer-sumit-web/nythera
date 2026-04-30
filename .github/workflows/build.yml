@@ -21,23 +21,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      # ✅ Install MSYS2 + required native libs
-      - name: Install MSYS2 and dependencies
-        run: |
-          choco install msys2 -y
-          C:\tools\msys64\usr\bin\bash -lc "pacman -Sy --noconfirm mingw-w64-ucrt-x86_64-cairo mingw-w64-ucrt-x86_64-pango"
-
-      # ✅ Install Python deps
+      # ✅ Install Python deps only
       - name: Install Python deps
         run: |
           pip install -r requirements.txt
           pip install pyinstaller
 
-      # ✅ Build EXE (no manual DLL bundling)
+      # ✅ Build EXE with bundled DLLs
       - name: Build EXE
         run: |
           pyinstaller --onefile `
           --name nythera `
+          --add-binary "dlls;dlls" `
           nythera/cli.py
 
       - name: Upload EXE
@@ -47,7 +42,7 @@ jobs:
           path: dist/nythera.exe
 
   # =========================
-  # SOURCE PACKAGE (cross-platform)
+  # SOURCE PACKAGE
   # =========================
   build-source:
     runs-on: ubuntu-latest
