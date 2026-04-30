@@ -1,0 +1,14 @@
+[project]
+name = "nythera"
+version = "0.1.0"
+description = "HTML to PDF CLI tool"
+dependencies = [
+    "weasyprint",
+    "rich"
+]
+
+[project.scripts]
+nythera = "nythera.cli:main"
+
+[tool.setuptools]
+packages = ["nythera"]

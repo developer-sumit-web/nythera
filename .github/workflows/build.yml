@@ -1,0 +1,60 @@
+name: Build NYTHERA
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+
+  # =========================
+  # WINDOWS BUILD (EXE)
+  # =========================
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      # 👇 IMPORTANT: bundle DLL folder
+      - name: Build EXE
+        run: |
+          pyinstaller --onefile ^
+          --name nythera ^
+          --add-binary "dlls;dlls" ^
+          nythera/cli.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: nythera-windows
+          path: dist/nythera.exe
+
+  # =========================
+  # SOURCE PACKAGE (cross-platform)
+  # =========================
+  build-source:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create source package
+        run: |
+          tar -czf nythera-source.tar.gz *
+
+      - name: Upload source
+        uses: actions/upload-artifact@v4
+        with:
+          name: nythera-source
+          path: nythera-source.tar.gz
