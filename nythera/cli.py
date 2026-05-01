@@ -27,6 +27,7 @@ from contextlib import nullcontext
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 from weasyprint import HTML, CSS
+from nythera import __version__
 import shlex
 import subprocess
 import argparse
@@ -199,6 +200,34 @@ def load_config():
     }
 
 
+def show_help(config, icons):
+    console.print(
+        f"\n[{config['header_style']} {config['primary_color']}]"
+        f"{icons['header']} NYTHERA"
+        f"[/{config['header_style']} {config['primary_color']}] "
+        f"[{config['dim_color']}]HTML → PDF[/{config['dim_color']}]\n"
+    )
+
+    console.print(f"[bold]Usage[/bold]")
+    console.print("  nythera file.html")
+    console.print("  nythera file.html -o D:\\PDFs")
+    console.print("  nythera a.html b.html c.html\n")
+
+    console.print(f"[bold]Options[/bold]")
+    console.print("  -h, --help        Show this help message")
+    console.print("  --config          Open config file")
+    console.print("  -o, --output      Output directory")
+    console.print("  --no-open         Do not open PDF after creation")
+    console.print("  --guide           Show full usage guide\n")
+
+    console.print(f"[bold]Examples[/bold]")
+    console.print("  nythera file.html")
+    console.print("  nythera file.html -o D:\\PDFs")
+    console.print("  nythera a.html b.html\n")
+
+    console.print(f"[{config['dim_color']}]Use 'nythera --guide' for full documentation[/{config['dim_color']}]\n")
+
+
 def main():
     last_pdf = None
     config = load_config()
@@ -206,7 +235,13 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog="nythera",
-        description="Convert HTML file(s) to PDF"
+        add_help=False
+    )
+
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Show version"
     )
 
     parser.add_argument(
@@ -239,6 +274,11 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if args.version:
+        console.print(f"nythera {__version__}")
+        return
+    
     if args.config:
         config_path = get_config_path()
 
@@ -251,6 +291,10 @@ def main():
 
         return
     is_cli = bool(args.files)
+
+    if any(arg in ("-h", "--help") for arg in sys.argv):
+        show_help(config, icons)
+        return
 
     if not args.guide and not any(arg in ("-h", "--help") for arg in sys.argv):
         console.print(
@@ -265,52 +309,170 @@ def main():
 
     if args.guide:
         console.print(
-            f"[{config['header_style']} {config['primary_color']}]NYTHERA GUIDE[/{config['header_style']} {config['primary_color']}]\n"
+            f"\n[{config['header_style']} {config['primary_color']}]"
+            f"{icons['header']} NYTHERA GUIDE"
+            f"[/{config['header_style']} {config['primary_color']}]\n"
         )
 
-        console.print(f"[{config['dim_color']}]Convert HTML files to PDF using WeasyPrint[/{config['dim_color']}]\n")
+        console.print(f"[{config['dim_color']}]Convert HTML to PDF from the command line.[/{config['dim_color']}]\n")
 
-        # ---------------- CLI USAGE ----------------
+        # --------------------------------------------------
+        console.print("[bold]OVERVIEW[/bold]")
         console.print(
-            f"[{config['header_style']} {config['primary_color']}]CLI Usage:[/{config['header_style']} {config['primary_color']}]"
+            f"[{config['dim_color']}]Nythera takes one or more HTML files, processes them using WeasyPrint, and generates PDF output based on your configuration or CLI options.[/{config['dim_color']}]\n"
         )
+
+        # --------------------------------------------------
+        console.print("[bold]INPUT[/bold]")
         console.print("  nythera file.html")
-        console.print("  nythera file.html -o C:\\output")
-        console.print("  nythera file1.html file2.html")
-        console.print("  nythera file.html --no-open\n")
-
-        # ---------------- INTERACTIVE ----------------
         console.print(
-            f"[{config['header_style']} {config['primary_color']}]Interactive Mode:[/{config['header_style']} {config['primary_color']}]"
+            f"[{config['dim_color']}]Provide one or more HTML files as arguments. Each file is processed independently.[/{config['dim_color']}]\n"
         )
-        console.print(f"[{config['dim_color']}]Run without arguments:[/{config['dim_color']}]")
+
+        console.print("  nythera a.html b.html c.html")
+        console.print(
+            f"[{config['dim_color']}]Multiple files are supported. Each input generates its own PDF output.[/{config['dim_color']}]\n"
+        )
+
+        # --------------------------------------------------
+        console.print("[bold]OUTPUT[/bold]")
+        console.print("  nythera file.html -o D:\\PDFs")
+        console.print(
+            f"[{config['dim_color']}]Use -o to control where PDFs are saved. This overrides the config file.[/{config['dim_color']}]"
+        )
+        console.print(
+            f"[{config['dim_color']}]If not provided, output follows this order:[/{config['dim_color']}]"
+        )
+        console.print("    1. default_dir (config)")
+        console.print("    2. same folder as input\n")
+
+        # --------------------------------------------------
+        console.print("[bold]INTERACTIVE MODE[/bold]")
         console.print("  nythera")
-        console.print(f"[{config['dim_color']}]Then follow prompts to enter file paths and output folder\n[/{config['dim_color']}]")
-
-        # ---------------- CONFIG ----------------
         console.print(
-            f"[{config['header_style']} {config['primary_color']}]Configuration:[/{config['header_style']} {config['primary_color']}]"
+            f"[{config['dim_color']}]Run without arguments to enter file paths and output directory manually.[/{config['dim_color']}]\n"
         )
-        console.print(f"[{config['dim_color']}]Open config file:[/{config['dim_color']}]")
+
+        # --------------------------------------------------
+        console.print("[bold]CONFIGURATION[/bold]")
         console.print("  nythera --config")
-        console.print(f"[{config['dim_color']}]Config controls themes, output behavior, and rendering mode\n[/{config['dim_color']}]")
-
-        # ---------------- PAGE MODES ----------------
         console.print(
-            f"[{config['header_style']} {config['primary_color']}]Page Modes:[/{config['header_style']} {config['primary_color']}]"
+            f"[{config['dim_color']}]Opens the config file where default behavior is controlled.[/{config['dim_color']}]\n"
         )
-        console.print("  strict     → exact HTML layout (no scaling, no margin fixes)")
-        console.print("  a4         → force A4 layout")
-        console.print("  flexible   → remove constraints")
-        console.print("  auto       → detect from HTML\n")
 
-        # ---------------- TIPS ----------------
+        console.print("  Important settings:")
+        console.print("    default_dir   → default output location")
+        console.print("    overwrite     → replace or keep existing files")
+        console.print("    open_after    → control auto opening")
+        console.print("    page_mode     → rendering behavior\n")
+
+        # --------------------------------------------------
+        console.print("[bold]RENDERING MODES[/bold]")
+        console.print("  strict")
         console.print(
-            f"[{config['header_style']} {config['primary_color']}]Tips:[/{config['header_style']} {config['primary_color']}]"
+            f"[{config['dim_color']}]Uses HTML exactly as written. Best when layout is already correct.[/{config['dim_color']}]\n"
         )
-        console.print(f"[{config['dim_color']}]• Drag & drop files directly into terminal[/{config['dim_color']}]")
-        console.print(f"[{config['dim_color']}]• Use quotes for paths with spaces[/{config['dim_color']}]")
-        console.print(f"[{config['dim_color']}]• Multiple files are supported[/{config['dim_color']}]")
+
+        console.print("  a4")
+        console.print(
+            f"[{config['dim_color']}]Forces A4 layout. Useful for printing and reports.[/{config['dim_color']}]\n"
+        )
+
+        console.print("  flexible")
+        console.print(
+            f"[{config['dim_color']}]Adjusts layout when content overflows or breaks.[/{config['dim_color']}]\n"
+        )
+
+        console.print("  auto")
+        console.print(
+            f"[{config['dim_color']}]Automatically decides based on HTML content.[/{config['dim_color']}]\n"
+        )
+
+        # --------------------------------------------------
+        console.print("[bold]BEHAVIOR CONTROL[/bold]")
+        console.print("  overwrite = false")
+        console.print(
+            f"[{config['dim_color']}]Creates new files instead of replacing existing ones.[/{config['dim_color']}]\n"
+        )
+
+        console.print("  overwrite = true")
+        console.print(
+            f"[{config['dim_color']}]Replaces existing files with the same name.[/{config['dim_color']}]\n"
+        )
+
+        console.print("  open_after = ask | always | never")
+        console.print(
+            f"[{config['dim_color']}]Controls whether PDFs are opened after creation.[/{config['dim_color']}]\n"
+        )
+
+        # --------------------------------------------------
+        console.print("[bold]COMMON USE CASES[/bold]")
+
+        console.print("  Convert one file")
+        console.print("    nythera file.html\n")
+
+        console.print("  Convert multiple files")
+        console.print("    nythera a.html b.html\n")
+
+        console.print("  Save to different folder")
+        console.print("    nythera file.html -o D:\\PDFs\n")
+
+        console.print("  Use in automation")
+        console.print("    nythera file.html --no-open\n")
+
+        console.print("  Fix layout issues")
+        console.print("    page_mode = flexible (config)\n")
+
+        console.print("  Print-ready output")
+        console.print("    page_mode = a4\n")
+
+        # ---------------------- Aliases guide ----------------------------
+        console.print("[bold]SHORTCUTS (Aliases)[/bold]")
+
+        console.print(
+            f"[{config['dim_color']}]If you use Nythera frequently, you can create short commands (aliases) in your terminal so you don’t need to remember full arguments.[/{config['dim_color']}]\n"
+        )
+
+        console.print("Example:")
+        console.print("  nythera file.html -o D:\\PDFs --no-open\n")
+
+        console.print(
+            f"[{config['dim_color']}]Instead of typing this every time, you can create a shortcut like 'npdf'.[/{config['dim_color']}]\n"
+        )
+
+        console.print("[bold]PowerShell[/bold]")
+        console.print("  notepad $PROFILE")
+        console.print("  Add:")
+        console.print('    function npdf { nythera $args -o "D:\\PDFs" --no-open }')
+        console.print(
+            f"[{config['dim_color']}]Restart terminal and use: npdf file.html[/{config['dim_color']}]\n"
+        )
+
+        console.print("[bold]Git Bash / Bash[/bold]")
+        console.print("  nano ~/.bashrc")
+        console.print("  Add:")
+        console.print('    alias npdf="nythera -o /d/PDFs --no-open"')
+        console.print(
+            f"[{config['dim_color']}]Run: source ~/.bashrc[/{config['dim_color']}]"
+        )
+        console.print(
+            f"[{config['dim_color']}]Then use: npdf file.html[/{config['dim_color']}]\n"
+        )
+
+        console.print("[bold]Zsh (macOS / Linux)[/bold]")
+        console.print("  nano ~/.zshrc")
+        console.print("  Add:")
+        console.print('    alias npdf="nythera -o ~/PDFs --no-open"')
+        console.print(
+            f"[{config['dim_color']}]Run: source ~/.zshrc[/{config['dim_color']}]\n"
+        )
+
+        # --------------------------------------------------
+        console.print("[bold]NOTES[/bold]")
+        console.print(f"[{config['dim_color']}]• Output folder must exist")
+        console.print("• Use quotes for paths with spaces")
+        console.print("• Drag & drop files into terminal")
+        console.print("• Linux/mac require system libraries[/]\n")
 
         return
 
