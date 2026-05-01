@@ -65,7 +65,6 @@ nythera
 
 Keeping `nythera.exe` in a dedicated folder (like `C:\tools\nythera`) helps avoid accidental deletion and keeps your setup clean.
 
-
 ---
 
 ## Linux / macOS
@@ -85,7 +84,7 @@ pip install .
 
 Run:
 
-```bash
+```pwsh
 nythera file.html
 ```
 
@@ -93,7 +92,7 @@ nythera file.html
 
 ## ⚙️ Config File
 
-```bash
+```pwsh
 nythera --config
 ```
 
@@ -234,7 +233,7 @@ overwrite = false
 
 Prevents overwriting:
 
-```explorer
+```bash
 file.pdf
 file (1).pdf
 ```
@@ -288,7 +287,7 @@ Use `nerd` if your terminal supports Nerd Fonts for better visuals.
 
 # 📁 Execution Flow
 
-```exe
+```bash
 INPUT → PROCESS → OUTPUT → OPTIONAL OPEN
 ```
 
@@ -296,7 +295,7 @@ INPUT → PROCESS → OUTPUT → OPTIONAL OPEN
 
 # 📂 Project Structure
 
-```tree
+```bash
 nythera/
 ├── nythera/
 │   ├── cli.py
@@ -447,6 +446,7 @@ Licensed under the **MIT License**.
 See [`LICENSE`](./LICENSE) for full terms.
 
 ---
+
 ## 💬 Note
 
 This project is being developed while I’m actively learning and improving my understanding of Python.

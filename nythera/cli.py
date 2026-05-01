@@ -22,7 +22,7 @@ if os.name == "nt":
         os.environ["FONTCONFIG_PATH"] = font_path
 
 # ====================================================================
-
+from rich.text import Text
 from contextlib import nullcontext
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
@@ -239,6 +239,12 @@ def main():
     )
 
     parser.add_argument(
+        "-h", "--help",
+        action="store_true",
+        help="Show help"
+    )
+
+    parser.add_argument(
         "--version",
         action="store_true",
         help="Show version"
@@ -275,10 +281,14 @@ def main():
 
     args = parser.parse_args()
 
+    if args.help:
+        show_help(config, icons)
+        return
+
     if args.version:
         console.print(f"nythera {__version__}")
         return
-    
+
     if args.config:
         config_path = get_config_path()
 
@@ -292,11 +302,7 @@ def main():
         return
     is_cli = bool(args.files)
 
-    if any(arg in ("-h", "--help") for arg in sys.argv):
-        show_help(config, icons)
-        return
-
-    if not args.guide and not any(arg in ("-h", "--help") for arg in sys.argv):
+    if not args.guide and not args.help:
         console.print(
             f"\n[{config['header_style']} {config['primary_color']}]"
             f"{icons['header']} NYTHERA"
@@ -310,19 +316,26 @@ def main():
     if args.guide:
         console.print(
             f"\n[{config['header_style']} {config['primary_color']}]"
-            f"{icons['header']} NYTHERA GUIDE"
-            f"[/{config['header_style']} {config['primary_color']}]\n"
+            f"{icons['header']} NYTHERA"
+            f"[/{config['header_style']} {config['primary_color']}] "
+            f"[{config['dim_color']}]GUIDE[/{config['dim_color']}]\n"
         )
 
-        console.print(f"[{config['dim_color']}]Convert HTML to PDF from the command line.[/{config['dim_color']}]\n")
+        console.print(
+            f"[{config['dim_color']}]"
+            "Convert HTML to PDF from the command line."
+            f"[/{config['dim_color']}]\n"
+        )
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]OVERVIEW[/bold]")
         console.print(
             f"[{config['dim_color']}]Nythera takes one or more HTML files, processes them using WeasyPrint, and generates PDF output based on your configuration or CLI options.[/{config['dim_color']}]\n"
         )
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]INPUT[/bold]")
         console.print("  nythera file.html")
         console.print(
@@ -335,18 +348,20 @@ def main():
         )
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]OUTPUT[/bold]")
         console.print("  nythera file.html -o D:\\PDFs")
         console.print(
-            f"[{config['dim_color']}]Use -o to control where PDFs are saved. This overrides the config file.[/{config['dim_color']}]"
-        )
-        console.print(
-            f"[{config['dim_color']}]If not provided, output follows this order:[/{config['dim_color']}]"
+            f"[{config['dim_color']}]"
+            "Use -o to control where PDFs are saved. This overrides the config file.\n"
+            "If not provided, output follows this order:"
+            f"[/{config['dim_color']}]"
         )
         console.print("    1. default_dir (config)")
         console.print("    2. same folder as input\n")
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]INTERACTIVE MODE[/bold]")
         console.print("  nythera")
         console.print(
@@ -354,125 +369,208 @@ def main():
         )
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]CONFIGURATION[/bold]")
         console.print("  nythera --config")
         console.print(
-            f"[{config['dim_color']}]Opens the config file where default behavior is controlled.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Opens the config file where default behavior is controlled."
+            f"[/{config['dim_color']}]\n"
         )
 
-        console.print("  Important settings:")
+        console.print(
+            f"[{config['dim_color']}]"
+            "Key settings:"
+            f"[/{config['dim_color']}]"
+        )
         console.print("    default_dir   → default output location")
         console.print("    overwrite     → replace or keep existing files")
         console.print("    open_after    → control auto opening")
         console.print("    page_mode     → rendering behavior\n")
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]RENDERING MODES[/bold]")
         console.print("  strict")
         console.print(
-            f"[{config['dim_color']}]Uses HTML exactly as written. Best when layout is already correct.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Uses HTML exactly as written. Best when layout is already correct."
+            f"[/{config['dim_color']}]\n"
         )
 
         console.print("  a4")
         console.print(
-            f"[{config['dim_color']}]Forces A4 layout. Useful for printing and reports.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Forces A4 layout. Useful for printing and reports."
+            f"[/{config['dim_color']}]\n"
         )
 
         console.print("  flexible")
         console.print(
-            f"[{config['dim_color']}]Adjusts layout when content overflows or breaks.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Adjusts layout when content overflows or breaks."
+            f"[/{config['dim_color']}]\n"
         )
 
         console.print("  auto")
         console.print(
-            f"[{config['dim_color']}]Automatically decides based on HTML content.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Automatically decides based on HTML content."
+            f"[/{config['dim_color']}]\n"
         )
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]BEHAVIOR CONTROL[/bold]")
         console.print("  overwrite = false")
         console.print(
-            f"[{config['dim_color']}]Creates new files instead of replacing existing ones.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Creates new files instead of replacing existing ones."
+            f"[/{config['dim_color']}]\n"
         )
 
         console.print("  overwrite = true")
         console.print(
-            f"[{config['dim_color']}]Replaces existing files with the same name.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Replaces existing files with the same name."
+            f"[/{config['dim_color']}]\n"
         )
 
         console.print("  open_after = ask | always | never")
         console.print(
-            f"[{config['dim_color']}]Controls whether PDFs are opened after creation.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "Controls whether PDFs are opened after creation."
+            f"[/{config['dim_color']}]\n"
         )
 
         # --------------------------------------------------
+        console.print()
         console.print("[bold]COMMON USE CASES[/bold]")
 
-        console.print("  Convert one file")
-        console.print("    nythera file.html\n")
+        # --- Convert one file ---
+        console.print(Text("  Convert one file", style="bold"))
+        console.print(Text("    nythera file.html", style=config["dim_color"]))
+        console.print()
 
-        console.print("  Convert multiple files")
-        console.print("    nythera a.html b.html\n")
+        # --- Multiple files ---
+        console.print(Text("  Convert multiple files", style="bold"))
+        console.print(Text("    nythera a.html b.html", style=config["dim_color"]))
+        console.print()
 
-        console.print("  Save to different folder")
-        console.print("    nythera file.html -o D:\\PDFs\n")
+        # --- Output directory ---
+        console.print(Text("  Save to different folder", style="bold"))
+        console.print(Text("    nythera file.html -o D:\\PDFs", style=config["dim_color"]))
+        console.print()
 
-        console.print("  Use in automation")
-        console.print("    nythera file.html --no-open\n")
+        # --- Automation ---
+        console.print(Text("  Use in automation", style="bold"))
+        console.print(Text("    nythera file.html --no-open", style=config["dim_color"]))
+        console.print()
 
-        console.print("  Fix layout issues")
-        console.print("    page_mode = flexible (config)\n")
+        # --- Layout fix ---
+        console.print(Text("  Fix layout issues", style="bold"))
+        console.print(Text("    page_mode = flexible  (config)", style=config["dim_color"]))
+        console.print()
 
-        console.print("  Print-ready output")
-        console.print("    page_mode = a4\n")
+        # --- Print ---
+        console.print(Text("  Print-ready output", style="bold"))
+        console.print(Text("    page_mode = a4  (config)", style=config["dim_color"]))
+        console.print()
 
         # ---------------------- Aliases guide ----------------------------
+        console.print()
         console.print("[bold]SHORTCUTS (Aliases)[/bold]")
 
         console.print(
-            f"[{config['dim_color']}]If you use Nythera frequently, you can create short commands (aliases) in your terminal so you don’t need to remember full arguments.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "If you use Nythera frequently, you can create short commands (aliases) "
+            "in your terminal so you don’t need to remember full arguments."
+            f"[/{config['dim_color']}]\n"
         )
 
-        console.print("Example:")
+        console.print("[bold]Example usage[/bold]")
         console.print("  nythera file.html -o D:\\PDFs --no-open\n")
 
         console.print(
-            f"[{config['dim_color']}]Instead of typing this every time, you can create a shortcut like 'npdf'.[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]"
+            "You can shorten this into a reusable command like 'npdf'."
+            f"[/{config['dim_color']}]\n"
         )
 
+        # ---------------- PowerShell ----------------
+        console.print()
         console.print("[bold]PowerShell[/bold]")
-        console.print("  notepad $PROFILE")
-        console.print("  Add:")
-        console.print('    function npdf { nythera $args -o "D:\\PDFs" --no-open }')
+        cmd = Text("  ")
+        cmd.append("notepad ", style="yellow")
+        cmd.append("$PROFILE", style=config["dim_color"])
+        console.print(cmd)
         console.print(
-            f"[{config['dim_color']}]Restart terminal and use: npdf file.html[/{config['dim_color']}]\n"
+            f"[{config['dim_color']}]Add this to your profile:[/{config['dim_color']}]"
+        )
+        cmd = Text("    ")
+
+        cmd.append("function ", style="red")
+        cmd.append("npdf", style="yellow")
+        cmd.append(" { ", style="bright_white")
+
+        cmd.append("nythera ", style="bright_white")
+        cmd.append("$args ", style="cyan")
+        cmd.append("-o ", style="bright_white")
+
+        cmd.append('"D:\\PDFs"', style="green")
+
+        cmd.append(" --no-open", style="bright_white")
+        cmd.append(" }", style="bright_white")
+
+        console.print(cmd)
+        console.print(
+            f"[{config['dim_color']}]Restart terminal, then use: npdf file.html[/{config['dim_color']}]\n"
         )
 
-        console.print("[bold]Git Bash / Bash[/bold]")
-        console.print("  nano ~/.bashrc")
-        console.print("  Add:")
-        console.print('    alias npdf="nythera -o /d/PDFs --no-open"')
+        # ---------------- Bash ----------------
+        console.print()
+        console.print(Text("Git Bash / Bash", style="bold"))
+        cmd = Text("  ")
+        cmd.append("nano ", style="yellow")
+        cmd.append("~/.bashrc", style=config["dim_color"])
+        console.print(cmd)
         console.print(
-            f"[{config['dim_color']}]Run: source ~/.bashrc[/{config['dim_color']}]"
+            f"[{config['dim_color']}]Add the following:[/{config['dim_color']}]"
         )
+        console.print('    alias npdf="nythera -o ~/PDFs --no-open"')
+        console.print(
+            f"[{config['dim_color']}]Apply with: source ~/.bashrc[/{config['dim_color']}]\n"
+        )
+
+        # ---------------- Zsh ----------------
+        console.print()
+        console.print(Text("Zsh (macOS / Linux)", style="bold"))
+        cmd = Text("  ")
+        cmd.append("nano ", style="yellow")
+        cmd.append("~/.zshrc", style=config["dim_color"])
+        console.print(cmd)
+        console.print(
+            f"[{config['dim_color']}]Add the following:[/{config['dim_color']}]"
+        )
+        console.print('    alias npdf="nythera -o ~/PDFs --no-open"')
+        console.print(
+            f"[{config['dim_color']}]Apply with: source ~/.zshrc[/{config['dim_color']}]\n"
+        )
+
         console.print(
             f"[{config['dim_color']}]Then use: npdf file.html[/{config['dim_color']}]\n"
         )
-
-        console.print("[bold]Zsh (macOS / Linux)[/bold]")
-        console.print("  nano ~/.zshrc")
-        console.print("  Add:")
-        console.print('    alias npdf="nythera -o ~/PDFs --no-open"')
-        console.print(
-            f"[{config['dim_color']}]Run: source ~/.zshrc[/{config['dim_color']}]\n"
-        )
-
         # --------------------------------------------------
+        console.print()
         console.print("[bold]NOTES[/bold]")
-        console.print(f"[{config['dim_color']}]• Output folder must exist")
-        console.print("• Use quotes for paths with spaces")
-        console.print("• Drag & drop files into terminal")
-        console.print("• Linux/mac require system libraries[/]\n")
+        console.print(
+            f"[{config['dim_color']}]"
+            "• Output folder must exist\n"
+            "• Use quotes for paths with spaces\n"
+            "• Drag & drop files into terminal\n"
+            "• Linux/mac require system libraries\n"
+            f"[/{config['dim_color']}]\n"
+        )
 
         return
 
